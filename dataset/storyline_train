@@ -1,17 +1,17 @@
-911:Israel,Laden,Al-qaeda,United States|us
-911:Saudi|Arabia,Laden,Al-qaeda,United States|us
-911:Iraq,Osama bin Laden,Al-qaeda,United States
-911:Laden,Al-qaeda,airliners|American Airlines|Fligh 11|United Airlines|Flight 175,World Trade Center,New York,World trade center site|Memorial competition
-911:Laden,Al-qaeda,airliners|American Airlines|Fligh 77,Pentagon,Arlington|Virginia,pentagon memorial
+911:Israel,Laden,Al-qaeda,United States|us|u.s.
+911:Saudi|Arabia,Laden,Al-qaeda,United States|us|u.s.
+911:Iraq,Osama bin Laden,Al-qaeda,United States|us|u.s.
+911:Laden,Al-qaeda,airliners|American Airlines|Flight|11|United Airlines|175,World Trade Center,New York,World trade center site|Memorial competition
+911:Laden,Al-qaeda,airliners|American Airlines|Flight|77,Pentagon,Arlington|Virginia,pentagon memorial
 911:Laden,Al-qaeda,airliners|United Airlines|Flight 93,Washington|D.C.|capitol|white house, Flight 93 Memorial
 911:Laden,Al-qaeda,airliners|United Airlines|Flight 93,Stonycreek Township,Flight 93 Memorial
 911:Laden,Mohammed,al-shibh,Atta
 911:Laden,Atef,hijacker
 911:Laden,Hazmi|Nawaf|al-hazmi,hani|hanjour
 911:Laden,Mihdhar,hani|hanjour
-911:911|9/11|September 11 attachks,Osama bin Laden|Laden,seal|team six|us|navy
-911:Laden|Al-qaeda,911|9/11|September 11 attachks,economic|world market|DJIA
-911:Laden|Al-qaeda,911|9/11|September 11 attachks,afghanistan|iraq|war
+911:911|9/11|September 11 attacks,Osama bin Laden|Laden,seal|team six|us|navy
+911:Laden|Al-qaeda,911|9/11|September 11 attacks,economic|world market|DJIA
+911:Laden|Al-qaeda,911|9/11|September 11 attacks,afghanistan|iraq|war
 vtshooting:Seung-hui|Seung-hui Cho,Emily|Hilscher,Ambler|Johnston|Hall
 vtshooting:Seung-hui|Seung-hui Cho,Ryan|Clark,Ambler|Johnston|Hall
 vtshooting:Seung-hui|Seung-hui Cho,Ambler|Johnston,NBC,Norris|Hall
@@ -33,13 +33,13 @@ vtshooting:shotting,FERPA|Family Educational Rights and Privacy Act,U.S. Departm
 vtshooting:Kaine|Tim,Tom|Ridge,shooting|gun
 vtshooting:shooting|gun,National Instant Criminal Background Check System|NICS,Brady
 vtshooting:shooting|gun,National Instant Criminal Background Check System|NICS,National Rifle Association|NRA
-paris:Opération|Chammal,Syria|Iraq,Islamic State of Iraq and the Levant|ISIL|Abdelhamid|Abaaoud,Paris|Saint-Denis|Stade|Rues|Bichat|Fontaine-au-Roi|Charonne|Voltaire|Alibert|Bataclan|theatre 
+paris:Operation|Chammal,Syria|Iraq,Islamic State of Iraq and the Levant|ISIL|Abdelhamid|Abaaoud,Paris|Saint-Denis|Stade|Rues|Bichat|Fontaine-au-Roi|Charonne|Voltaire|Alibert|Bataclan|theatre
 charlie:satirical|Muhammad,Al-Qaeda|AQAP|Saïd|Chérif|Kouachi,Charlie|Hebdo,Vigipirate|Je|suis|Charlie|jesuischarlie|République
 charlie:Al-Qaeda|Anwar|al-Awlaki|AQAP,Saïd|Chérif|Kouachi,Charlie|Hebdo
-orlando_club:Waheeb,Bakr|al-Baghdadi|Omar|Mateen|Islamic State of Iraq and the Levant|ISIL,Pulse|nightclub
+orlando:Waheeb,Bakr|al-Baghdadi|Omar|Mateen|Islamic State of Iraq and the Levant|ISIL,Pulse|nightclub
 isla:manifesto|rejected|women|retribution|Misogyny,Elliot|Rodger,UCSB|women
 church:White supremacy|racism,Dylann|Roof,Clementa|Pinckney|Charleston|church
-Bernardino:Enrique|Marquez,Syed|Rizwan|Farook|Tashfeen|Malik,Bernardino|Inland
+bernardino:Enrique|Marquez,Syed|Rizwan|Farook|Tashfeen|Malik,Bernardino|Inland
 baltimore:Lieutenant|BrianRice|Sergeant|Alicia|White|William|Porter|Garrett|Miller|Edward|Nero|Caesar|Goodson,death|homicide|Freddie|Carlos|Gray,baltimore|maryland,acquitted|acquittals
 wall:Income|inequality,adbusters,Zuccotti|Park|new|york|new york
 martin:Asa|Philip|Randolph|Bayard|Rustin,big six|six|Martin|Luther|King|James|Farmer|John|Lewis|Roy|Wilkins|Whitney|Young,Washington|Monument|Lincoln|Memorial,civil|rights|1964|1965|act
