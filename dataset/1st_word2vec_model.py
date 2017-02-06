@@ -37,5 +37,7 @@ for root_dir in ['./homicide', './protest']:
         model.save('w2v' + os.sep + story_id + '_w2v.model')
 
         # test purpose only
-        print model.most_similar(positive='protest')
-        print model.most_similar(positive='attack')
+        if 'protest' in model:
+            print 'protest', model.most_similar(positive='protest')
+        if 'attack' in model:
+            print 'attack', model.most_similar(positive='attack')
