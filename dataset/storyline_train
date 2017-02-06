@@ -29,12 +29,12 @@ vtshooting:Korean,Seung-hui|Seung-hui Cho,US|Centreville|Virginia
 vtshooting:Seung-hui|Seung-hui Cho,Cho's family,victims
 vtshooting:Seung-hui|Seung-hui Cho,Sun-Kyung,victims
 vtshooting:shooting|gun,National Instant Criminal Background Check System|NICS,George|Bush
-vtshooting:shotting,FERPA|Family Educational Rights and Privacy Act,U.S. Department of Education|ED|DoED
+vtshooting:shooting,FERPA|Family Educational Rights and Privacy Act,U.S. Department of Education|ED
 vtshooting:Kaine|Tim,Tom|Ridge,shooting|gun
 vtshooting:shooting|gun,National Instant Criminal Background Check System|NICS,Brady
 vtshooting:shooting|gun,National Instant Criminal Background Check System|NICS,National Rifle Association|NRA
-paris:Operation|Chammal,Syria|Iraq,Islamic State of Iraq and the Levant|ISIL|Abdelhamid|Abaaoud,Paris|Saint-Denis|Stade|Rues|Bichat|Fontaine-au-Roi|Charonne|Voltaire|Alibert|Bataclan|theatre
-charlie:satirical|Muhammad,Al-Qaeda|AQAP|Saïd|Chérif|Kouachi,Charlie|Hebdo,Vigipirate|Je|suis|Charlie|jesuischarlie|République
+paris:Operation|Chammal,Syria|Iraq,Islamic State of Iraq and the Levant|ISIL|Abdelhamid|Abaaoud,Paris|Saint-Denis|Stade|Rues|Bichat|Charonne|Voltaire|Alibert|Bataclan|theatre
+charlie:satirical|Muhammad,Al-Qaeda|AQAP|Saïd|Said|Cherif|Chérif|Kouachi,Charlie|Hebdo|Cabu|Elsa|Cayat|Charb|Wolinski|Tignous,Vigipirate|jesuischarlie|République
 charlie:Al-Qaeda|Anwar|al-Awlaki|AQAP,Saïd|Chérif|Kouachi,Charlie|Hebdo
 orlando:Waheeb,Bakr|al-Baghdadi|Omar|Mateen|Islamic State of Iraq and the Levant|ISIL,Pulse|nightclub
 isla:manifesto|rejected|women|retribution|Misogyny,Elliot|Rodger,UCSB|women
@@ -42,4 +42,4 @@ church:White supremacy|racism,Dylann|Roof,Clementa|Pinckney|Charleston|church
 bernardino:Enrique|Marquez,Syed|Rizwan|Farook|Tashfeen|Malik,Bernardino|Inland
 baltimore:Lieutenant|BrianRice|Sergeant|Alicia|White|William|Porter|Garrett|Miller|Edward|Nero|Caesar|Goodson,death|homicide|Freddie|Carlos|Gray,baltimore|maryland,acquitted|acquittals
 wall:Income|inequality,adbusters,Zuccotti|Park|new|york|new york
-martin:Asa|Philip|Randolph|Bayard|Rustin,big six|six|Martin|Luther|King|James|Farmer|John|Lewis|Roy|Wilkins|Whitney|Young,Washington|Monument|Lincoln|Memorial,civil|rights|1964|1965|act
+martin:Philip|Randolph|Bayard|Rustin,big six|six|Martin|Luther|King|James|Farmer|John|Lewis|Roy|Wilkins|Whitney|Young,Washington|Monument|Lincoln|Memorial,civil|rights|1964|1965|act

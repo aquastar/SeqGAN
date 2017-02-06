@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+python ./pre_1st_crawler.py 911_url
+python ./pre_1st_crawler.py bernardino_url
+python ./pre_1st_crawler.py boris_url
+python ./pre_1st_crawler.py Charlie_2015_url
+python ./pre_1st_crawler.py church_url
+python ./pre_1st_crawler.py columbine_url
+python ./pre_1st_crawler.py dc_navy_url
+python ./pre_1st_crawler.py isla_url
+python ./pre_1st_crawler.py james_url
+python ./pre_1st_crawler.py nidal_url
+python ./pre_1st_crawler.py Oikos_url
+python ./pre_1st_crawler.py orlando_club_url
+python ./pre_1st_crawler.py pairs_url
+python ./pre_1st_crawler.py sandyhook_url
+python ./pre_1st_crawler.py san_ysidro_url
+python ./pre_1st_crawler.py tucson_url
+python ./pre_1st_crawler.py umpqua_url
+python ./pre_1st_crawler.py vtshooting_url
+python ./pre_1st_crawler.py whitman_url

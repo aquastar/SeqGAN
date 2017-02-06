@@ -1,0 +1,13 @@
+python ../pre_1st_crawler.py black_url
+python ../pre_1st_crawler.py dakota_url
+python ../pre_1st_crawler.py fossil_url
+python ../pre_1st_crawler.py martin_url
+python ../pre_1st_crawler.py moldova_url
+python ../pre_1st_crawler.py nuclear_url
+python ../pre_1st_crawler.py patidar_url
+python ../pre_1st_crawler.py sanity_url
+python ../pre_1st_crawler.py trump_url
+python ../pre_1st_crawler.py vene_url
+python ../pre_1st_crawler.py vietnam_url
+python ../pre_1st_crawler.py wall_url
+python ../pre_1st_crawler.py women_url
