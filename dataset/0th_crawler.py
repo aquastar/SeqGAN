@@ -18,9 +18,9 @@ def noramlize_spanish(str):
     return unicodedata.normalize('NFKD', str).encode('ASCII', 'ignore')
 
 
-def catchpg(x, dir_to_write):
+def catchpg(x, dir_to_write, file_id):
     g = Goose()
-    print '=== start ==='
+    print '=== Start ==='
     print x
     try:
         a = g.extract(url=x)
@@ -32,15 +32,16 @@ def catchpg(x, dir_to_write):
         # translate(string.maketrans(string.punctuation, ' ' * len(string.punctuation)))
 
         if len(to_write.strip()) > 0:
-            output = open(dir_to_write + os.sep + a.title, 'wb')
+            output = open(dir_to_write + os.sep + str(file_id), 'wb')
             output.write(to_write.encode('utf-8'))
+            print 'caught ^_^Y'
         else:
-            print 'caught ^_^', x
+            print 'None -_-!', x
     except Exception as e:
         print e
-        print 'miss a link --!', x
+        print 'Missed -_-!', x
 
-    print '=== end ==\n'
+    print '=== End ===\n'
 
 
 if __name__ == '__main__':
@@ -60,4 +61,4 @@ if __name__ == '__main__':
             urls.append(line.strip())
 
     for x in xrange(len(urls)):
-        catchpg(urls[x], folder_name)
+        catchpg(urls[x], folder_name, x)
