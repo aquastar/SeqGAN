@@ -56,8 +56,8 @@ if __name__ == '__main__':
                     slice = s[i:i + min_len]
                     slice_vec = get_w2v(w2v_model, slice)
 
-                    if len(slice_vec) != len(s):
-                        print s
+                    if len(slice_vec) != len(slice):
+                        print '==', s
                         break
 
                     # calculate difference between two neighbor vectors
