@@ -6,7 +6,6 @@ from gensim.models import Word2Vec
 from stop_words import get_stop_words
 from nltk.stem.wordnet import WordNetLemmatizer
 
-
 storylines = pk.load(open('storyline.pk', 'rb'))
 protest_tag = ['baltimore', 'wall', 'martin']
 min_len = 3
@@ -14,6 +13,7 @@ protest_data = []
 homicide_data = []
 en_stop_words = [x.encode('utf-8') for x in get_stop_words('en')]
 lmtzr = WordNetLemmatizer()
+
 
 def mean(a):
     return sum(a) / len(a)
@@ -30,8 +30,8 @@ def get_w2v(w2v_vocab, word_list):
                 if w not in w2v_vocab:
                     print 'Missed Multiple Entites:', wd
                     missed = True
-            if missed:
-                continue
+            # if missed:
+            #     continue
             vec = [w2v_vocab[_] for _ in wd if _ in w2v_vocab]
             mean_vec = map(mean, zip(*vec))
             ret.append(np.array(mean_vec))
@@ -50,14 +50,25 @@ if __name__ == '__main__':
             if len(s) < min_len:
                 continue
             else:
+                # slicing window for data augmentation
                 for i in xrange(len(s) - min_len + 1):
+                    one_transfer_vec = []
                     slice = s[i:i + min_len]
                     slice_vec = get_w2v(w2v_model, slice)
 
+                    if len(slice_vec) != len(s):
+                        print s
+                        break
+
+                    # calculate difference between two neighbor vectors
+                    for i in xrange(min_len - 1):
+                        diff = np.subtract(slice_vec[i + 1], slice_vec[i])
+                        one_transfer_vec.append(diff)
+
                     if tag in protest_tag:
-                        protest_data.append(slice)
+                        protest_data.append(one_transfer_vec)
                     else:
-                        homicide_data.append(slice)
+                        homicide_data.append(one_transfer_vec)
 
 np.save(open('protest_in_num.npy', 'wb'), protest_data)
 np.save(open('homicide_in_num.npy', 'wb'), homicide_data)
