@@ -107,19 +107,16 @@ biases = {
     'out': tf.Variable(tf.random_normal([n_classes]))
 }
 
-class TARGET_LSTM(object):
-    def __init__(x, seqlen, weights, biases):
-
-        # Prepare data shape to match `rnn` function requirements
-        # Current data input shape: (batch_size, n_steps, n_input)
-        # Required shape: 'n_steps' tensors list of shape (batch_size, n_input)
-
+class LSTM(object):
+    def __init__(self, x, seqlen, weights, biases):
         # Permuting batch_size and n_steps
         x = tf.transpose(x, [1, 0, 2])
         # Reshaping to (n_steps*batch_size, n_input)
         x = tf.reshape(x, [-1, 1])
         # Split to get a list of 'n_steps' tensors of shape (batch_size, n_input)
         x = tf.split(0, seq_max_len, x)
+
+        self.x = x
 
         # Define a lstm cell with tensorflow
         lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(n_hidden)
@@ -150,23 +147,83 @@ class TARGET_LSTM(object):
 
         # Linear activation, using outputs computed above
         self.g_predictions = tf.matmul(outputs, weights['out']) + biases['out']
-        self.pretrain_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
-        optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost)
+
+        # Define loss and optimizer
+        self.pretrain_loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.g_predictions, y))
+
 
         # Evaluate model
-        # correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
-        # accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+        # self.correct_pred = tf.equal(tf.argmax(pred, 1), tf.argmax(y, 1))
+        # self.accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
+        self.optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(self.pretrain_loss)
+
+
 
     def pretrain_step(self, session, x):
-        outputs = session.run([self.pretrain_updates, self.pretrain_loss, self.g_predictions],
+        outputs = session.run([self.pretrain_loss, self.g_predictions],
                               feed_dict={self.x: x})
         return outputs
 
+    def g_optimizer(self, *args, **kwargs):
+        return tf.train.GradientDescentOptimizer(*args, **kwargs)
+
+
+def dynamicRNN(x, seqlen, weights, biases):
+
+    # Prepare data shape to match `rnn` function requirements
+    # Current data input shape: (batch_size, n_steps, n_input)
+    # Required shape: 'n_steps' tensors list of shape (batch_size, n_input)
+
+    # Permuting batch_size and n_steps
+    x = tf.transpose(x, [1, 0, 2])
+    # Reshaping to (n_steps*batch_size, n_input)
+    x = tf.reshape(x, [-1, 1])
+    # Split to get a list of 'n_steps' tensors of shape (batch_size, n_input)
+    x = tf.split(0, seq_max_len, x)
+
+    # Define a lstm cell with tensorflow
+    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(n_hidden)
+
+    # Get lstm cell output, providing 'sequence_length' will perform dynamic
+    # calculation.
+    outputs, states = tf.nn.rnn(lstm_cell, x, dtype=tf.float32,
+                                sequence_length=seqlen)
+
+    # When performing dynamic calculation, we must retrieve the last
+    # dynamically computed output, i.e., if a sequence length is 10, we need
+    # to retrieve the 10th output.
+    # However TensorFlow doesn't support advanced indexing yet, so we build
+    # a custom op that for each sample in batch size, get its length and
+    # get the corresponding relevant output.
+
+    # 'outputs' is a list of output at every timestep, we pack them in a Tensor
+    # and change back dimension to [batch_size, n_step, n_input]
+    outputs = tf.pack(outputs)
+    outputs = tf.transpose(outputs, [1, 0, 2])
+
+    # Hack to build the indexing and retrieve the right output.
+    batch_size = tf.shape(outputs)[0]
+    # Start indices for each sample
+    index = tf.range(0, batch_size) * seq_max_len + (seqlen - 1)
+    # Indexing
+    outputs = tf.gather(tf.reshape(outputs, [-1, n_hidden]), index)
+
+    # Linear activation, using outputs computed above
+    return tf.matmul(outputs, weights['out']) + biases['out']
+
+# pred = dynamicRNN(x, seqlen, weights, biases)
+#
+# # Define loss and optimizer
+# cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(pred, y))
+# optimizer = tf.train.GradientDescentOptimizer(learning_rate=learning_rate).minimize(cost)
+#
+# # Evaluate model
+# correct_pred = tf.equal(tf.argmax(pred,1), tf.argmax(y,1))
+# accuracy = tf.reduce_mean(tf.cast(correct_pred, tf.float32))
 
 
 
-
-pred = TARGET_LSTM(x, seqlen, weights, biases)
+tlstm = LSTM(x, seqlen, weights, biases)
 
 # Initializing the variables
 init = tf.global_variables_initializer()
@@ -176,28 +233,34 @@ with tf.Session() as sess:
     sess.run(init)
     step = 1
     # Keep training until reach max iterations
+
+
     while step * batch_size < training_iters:
         batch_x, batch_y, batch_seqlen = trainset.next(batch_size)
-        # Run optimization op (backprop)
-        sess.run(optimizer, feed_dict={x: batch_x, y: batch_y,
-                                       seqlen: batch_seqlen})
-        if step % display_step == 0:
-            # Calculate batch accuracy
-            acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y,
-                                                seqlen: batch_seqlen})
-            # Calculate batch loss
-            loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y,
-                                             seqlen: batch_seqlen})
-            print("Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
-                  "{:.6f}".format(loss) + ", Training Accuracy= " + \
-                  "{:.5f}".format(acc))
-        step += 1
-    print("Optimization Finished!")
 
-    # Calculate accuracy
-    test_data = testset.data
-    test_label = testset.labels
-    test_seqlen = testset.seqlen
-    print("Testing Accuracy:", \
-        sess.run(accuracy, feed_dict={x: test_data, y: test_label,
-                                      seqlen: test_seqlen}))
+
+        g_loss = sess.run(tlstm.pretrain_loss, feed_dict={x: batch_x, y: batch_y, seqlen: batch_seqlen})
+        print('g_loss', g_loss)
+        # Run optimization op (backprop)
+    #     sess.run(optimizer, feed_dict={x: batch_x, y: batch_y,
+    #                                    seqlen: batch_seqlen})
+    #     if step % display_step == 0:
+    #         # Calculate batch accuracy
+    #         acc = sess.run(accuracy, feed_dict={x: batch_x, y: batch_y,
+    #                                             seqlen: batch_seqlen})
+    #         # Calculate batch loss
+    #         loss = sess.run(cost, feed_dict={x: batch_x, y: batch_y,
+    #                                          seqlen: batch_seqlen})
+    #         print("Iter " + str(step*batch_size) + ", Minibatch Loss= " + \
+    #               "{:.6f}".format(loss) + ", Training Accuracy= " + \
+    #               "{:.5f}".format(acc))
+    #     step += 1
+    # print("Optimization Finished!")
+    #
+    # # Calculate accuracy
+    # test_data = testset.data
+    # test_label = testset.labels
+    # test_seqlen = testset.seqlen
+    # print("Testing Accuracy:", \
+    #     sess.run(accuracy, feed_dict={x: test_data, y: test_label,
+    #                                   seqlen: test_seqlen}))
