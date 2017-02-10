@@ -18,7 +18,7 @@ HIDDEN_DIM = 300
 SEQ_LENGTH = 3
 START_TOKEN = 0
 
-PRE_EPOCH_NUM = 10  # 240
+PRE_EPOCH_NUM = 1  # 240
 TRAIN_ITER = 1  # generator
 SEED = 88
 BATCH_SIZE = 64
@@ -29,9 +29,9 @@ TOTAL_BATCH = 1  # 800
 #########################################################################################
 #  Discriminator  Hyper-parameters
 #########################################################################################
-dis_embedding_dim = 64
-dis_filter_sizes = [1, 2]#, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
-dis_num_filters = [100, 200]#, 200, 200, 200, 100, 100, 100, 100, 100, 160, 160]
+dis_embedding_dim = EMB_DIM
+dis_filter_sizes = [1, 2]  # , 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
+dis_num_filters = [100, 200]  # , 200, 200, 200, 100, 100, 100, 100, 100, 160, 160]
 dis_dropout_keep_prob = 0.75
 dis_l2_reg_lambda = 0.2
 
@@ -40,8 +40,8 @@ dis_batch_size = 64
 dis_num_epochs = 3
 dis_alter_epoch = 1  # 50
 
-positive_file = 'save/real_data.txt'
-negative_file = 'target_generate/generator_sample.txt'
+positive_file = './homicide_in_num.npy'
+negative_file = 'target_generate/generator_sample.npy'
 eval_file = 'target_generate/eval_file.txt'
 
 generated_num = 10000
@@ -67,12 +67,13 @@ def generate_samples(sess, trainable_model, batch_size, generated_num, output_fi
         generated_samples.extend(trainable_model.generate(sess))
     end = time.time()
     # print 'Sample generation time:', (end - start)
+    np.save(output_file, generated_samples)
 
-    with open(output_file, 'w') as fout:
-        for poem in generated_samples:
-            buffer = ' '.join([str(x) for x in poem]) + '\n'
-            # buffer = u''.join([words[x] for x in poem]).encode('utf-8') + '\n'
-            fout.write(buffer)
+    # with open(output_file, 'w') as fout:
+    #     for poem in generated_samples:
+    #         buffer = ' '.join([str(x) for x in poem]) + '\n'
+    #         # buffer = u''.join([words[x] for x in poem]).encode('utf-8') + '\n'
+    #         fout.write(buffer)
 
 
 def target_loss(sess, target_lstm, data_loader):
@@ -159,8 +160,8 @@ def main():
     # generate_samples(sess, target_lstm, 64, 10000, positive_file)
 
     # store real data for next step
-    positive_file = np.load('./homicide_in_num.npy').tolist()
-    gen_data_loader.create_batches(positive_file)
+    positive_data = np.load(positive_file).tolist()
+    gen_data_loader.create_batches(positive_data)
 
     log = open('log/experiment-log.txt', 'w')
     #  pre-train generator
@@ -209,9 +210,9 @@ def main():
                     cnn.dropout_keep_prob: dis_dropout_keep_prob
                 }
                 _, step = sess.run([dis_train_op, dis_global_step], feed)
-            except ValueError:
-                pass
-
+            except Exception as e:
+                # print str(e)
+                raise
     rollout = ROLLOUT(generator, 0.8)
 
     print '#########################################################################'

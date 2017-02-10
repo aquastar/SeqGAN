@@ -21,7 +21,7 @@ BATCH_SIZE = 64
 
 ##########################################################################################
 positive_file = 'save/real_data.txt'
-negative_file = 'target_generate/generator_sample.txt'
+negative_file = 'target_generate/generator_sample'
 eval_file = 'target_generate/eval_file.txt'
 
 generated_num = 10000

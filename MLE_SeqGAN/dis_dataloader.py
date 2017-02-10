@@ -17,25 +17,28 @@ class Dis_dataloader():
         Loads MR polarity data from files, splits the data into words and generates labels.
         Returns split sentences and labels.
         """
-        positive_examples = []
-        negative_examples = []
-        with open(positive_file)as fin:
-            for line in fin:
-                line = line.strip()
-                line = line.split()
-                parse_line = [int(x) for x in line]
-                positive_examples.append(parse_line)
+        positive_examples = np.load(positive_file)
+        negative_examples = np.load(negative_file)
 
-        with open(negative_file)as fin:
-            for line in fin:
-                line = line.strip()
-                line = line.split()
-                parse_line = [int(x) for x in line]
-                if len(parse_line) == 20:
-                    negative_examples.append(parse_line)
+        x_text = np.concatenate([positive_examples, negative_examples], 0)
+
+        # with open(positive_file)as fin:
+        #     for line in fin:
+        #         line = line.strip()
+        #         line = line.split()
+        #         parse_line = [int(x) for x in line]
+        #         positive_examples.append(parse_line)
+        #
+        # with open(negative_file)as fin:
+        #     for line in fin:
+        #         line = line.strip()
+        #         line = line.split()
+        #         parse_line = [int(x) for x in line]
+        #         if len(parse_line) == 20:
+        #             negative_examples.append(parse_line)
 
         # Split by words
-        x_text = positive_examples + negative_examples
+        # x_text = positive_examples + negative_examples
 
         # Generate labels
         positive_labels = [[0, 1] for _ in positive_examples]
