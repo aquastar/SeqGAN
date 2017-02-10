@@ -179,13 +179,15 @@ def main():
             # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
             # print 'pre-train epoch ', epoch, 'test_loss ', test_loss
             # buffer = str(epoch) + ' ' + str(test_loss) + '\n'
-            # log.write(buffer)
+            buffer = str(epoch) + ' ' + str(loss) + '\n'
+            log.write(buffer)
 
     # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
     # likelihood_data_loader.create_batches(eval_file)
     # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
     # buffer = 'After pre-training:' + ' ' + str(test_loss) + '\n'
-    # log.write(loss)
+    buffer = 'After pre-training:' + ' ' + str(loss) + '\n'
+    log.write(buffer)
 
     # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
     # likelihood_data_loader.create_batches(eval_file)
@@ -236,7 +238,7 @@ def main():
             # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
             # buffer = str(total_batch) + ' ' + str(test_loss) + '\n'
             # print 'total_batch: ', total_batch, 'test_loss: ', test_loss
-            log.write(buffer)
+            # log.write(buffer)
 
             # if test_loss < best_score:
             #     best_score = test_loss
@@ -269,5 +271,4 @@ def main():
 
 
 if __name__ == '__main__':
-    tf.reset_default_graph()
     main()
