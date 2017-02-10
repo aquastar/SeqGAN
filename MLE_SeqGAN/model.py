@@ -11,7 +11,8 @@ class LSTM(object):
         self.emb_dim = emb_dim
         self.hidden_dim = hidden_dim
         self.sequence_length = sequence_length
-        self.start_token = tf.constant([start_token] * self.batch_size, dtype=tf.int32)
+        # self.start_token = tf.constant([start_token] * self.batch_size, dtype=tf.int32)
+        self.start_token = tf.zeros([self.batch_size, self.emb_dim], tf.float32)
         self.learning_rate = tf.Variable(float(learning_rate), trainable=False)
         self.reward_gamma = reward_gamma
         self.g_params = []
@@ -21,14 +22,18 @@ class LSTM(object):
 
         self.expected_reward = tf.Variable(tf.zeros([self.sequence_length]))
 
+        # added by czq
+        self.word_dim = 300
+
         with tf.variable_scope('generator'):
-            self.g_embeddings = tf.Variable(self.init_matrix([self.num_emb, self.emb_dim]))
-            self.g_params.append(self.g_embeddings)
+            # self.g_embeddings = tf.Variable(self.init_matrix([self.num_emb, self.emb_dim]))
+            # self.g_params.append(self.g_embeddings)
             self.g_recurrent_unit = self.create_recurrent_unit(self.g_params)  # maps h_tm1 to h_t for generator
             self.g_output_unit = self.create_output_unit(self.g_params)  # maps h_t to o_t (output token logits)
 
         # placeholder definition
-        self.x = tf.placeholder(tf.int32, shape=[self.batch_size, self.sequence_length])
+        # self.x = tf.placeholder(tf.int32, shape=[self.batch_size, self.sequence_length])
+        self.x = tf.placeholder(tf.float32, shape=[self.batch_size, self.sequence_length, self.emb_dim])
         # sequence of indices of true data, not including start token
 
         self.rewards = tf.placeholder(tf.float32, shape=[self.batch_size, self.sequence_length])
@@ -36,7 +41,7 @@ class LSTM(object):
 
         # processed for batch
         with tf.device("/cpu:0"):
-            inputs = tf.split(1, self.sequence_length, tf.nn.embedding_lookup(self.g_embeddings, self.x))
+            inputs = tf.split(1, self.sequence_length, self.x)
             self.processed_x = tf.pack(
                 [tf.squeeze(input_, [1]) for input_ in inputs])  # seq_length x batch_size x emb_dim
 
@@ -45,17 +50,18 @@ class LSTM(object):
 
         gen_o = tensor_array_ops.TensorArray(dtype=tf.float32, size=self.sequence_length,
                                              dynamic_size=False, infer_shape=True)
-        gen_x = tensor_array_ops.TensorArray(dtype=tf.int32, size=self.sequence_length,
+        gen_x = tensor_array_ops.TensorArray(dtype=tf.float32, size=self.sequence_length,
                                              dynamic_size=False, infer_shape=True)
 
         def _g_recurrence(i, x_t, h_tm1, gen_o, gen_x):
             h_t = self.g_recurrent_unit(x_t, h_tm1)  # hidden_memory_tuple
             o_t = self.g_output_unit(h_t)  # batch x vocab , logits not prob
-            log_prob = tf.log(tf.nn.softmax(o_t))
-            next_token = tf.cast(tf.reshape(tf.multinomial(log_prob, 1), [self.batch_size]), tf.int32)
-            x_tp1 = tf.nn.embedding_lookup(self.g_embeddings, next_token)  # batch x emb_dim
-            gen_o = gen_o.write(i, tf.reduce_sum(tf.mul(tf.one_hot(next_token, self.num_emb, 1.0, 0.0),
-                                                        tf.nn.softmax(o_t)), 1))  # [batch_size] , prob
+            next_token = o_t
+            # log_prob = tf.log(tf.nn.softmax(o_t))
+            # next_token = tf.cast(tf.reshape(tf.multinomial(log_prob, 1), [self.batch_size]), tf.int32)
+            # x_tp1 = tf.nn.embedding_lookup(self.g_embeddings, next_token)  # batch x emb_dim
+            x_tp1 = next_token  # batch x emb_dim
+            gen_o = gen_o.write(i, next_token)  # [batch_size] , prob
             gen_x = gen_x.write(i, next_token)  # indices, batch_size
             return i + 1, x_tp1, h_t, gen_o, gen_x
 
@@ -63,10 +69,10 @@ class LSTM(object):
             cond=lambda i, _1, _2, _3, _4: i < self.sequence_length,
             body=_g_recurrence,
             loop_vars=(tf.constant(0, dtype=tf.int32),
-                       tf.nn.embedding_lookup(self.g_embeddings, self.start_token), self.h0, gen_o, gen_x))
+                       self.start_token, self.h0, gen_o, gen_x))
 
         self.gen_x = self.gen_x.pack()  # seq_length x batch_size
-        self.gen_x = tf.transpose(self.gen_x, perm=[1, 0])  # batch_size x seq_length
+        self.gen_x = tf.transpose(self.gen_x, perm=[1, 0, 2])  # batch_size x seq_length
 
         # supervised pretraining for generator
         g_predictions = tensor_array_ops.TensorArray(
@@ -80,7 +86,8 @@ class LSTM(object):
         def _pretrain_recurrence(i, x_t, h_tm1, g_predictions):
             h_t = self.g_recurrent_unit(x_t, h_tm1)
             o_t = self.g_output_unit(h_t)
-            g_predictions = g_predictions.write(i, tf.nn.softmax(o_t))  # batch x vocab_size
+            # g_predictions = g_predictions.write(i, tf.nn.softmax(o_t))  # batch x vocab_size
+            g_predictions = g_predictions.write(i, o_t)  # batch x vocab_size
             x_tp1 = ta_emb_x.read(i)
             return i + 1, x_tp1, h_t, g_predictions
 
@@ -88,7 +95,7 @@ class LSTM(object):
             cond=lambda i, _1, _2, _3: i < self.sequence_length,
             body=_pretrain_recurrence,
             loop_vars=(tf.constant(0, dtype=tf.int32),
-                       tf.nn.embedding_lookup(self.g_embeddings, self.start_token),
+                       self.start_token,
                        self.h0, g_predictions))
 
         self.g_predictions = tf.transpose(
@@ -96,9 +103,7 @@ class LSTM(object):
 
         # pretraining loss
         self.pretrain_loss = -tf.reduce_sum(
-            tf.one_hot(tf.to_int32(tf.reshape(self.x, [-1])), self.num_emb, 1.0, 0.0) * tf.log(
-                tf.clip_by_value(tf.reshape(self.g_predictions, [-1, self.num_emb]), 1e-20, 1.0)
-            )
+            tf.reshape(self.x, [-1, self.emb_dim]) * tf.reshape(self.g_predictions, [-1, self.emb_dim])
         ) / (self.sequence_length * self.batch_size)
 
         # training updates
@@ -111,11 +116,16 @@ class LSTM(object):
         #######################################################################################################
         #  Unsupervised Training
         #######################################################################################################
+        # self.g_loss = -tf.reduce_sum(
+        #     tf.reduce_sum(
+        #         tf.one_hot(tf.to_int32(tf.reshape(self.x, [-1])), self.num_emb, 1.0, 0.0) * tf.log(
+        #             tf.clip_by_value(tf.reshape(self.g_predictions, [-1, self.num_emb]), 1e-20, 1.0)
+        #         ), 1) * tf.reshape(self.rewards, [-1])
+        # )
         self.g_loss = -tf.reduce_sum(
             tf.reduce_sum(
-                tf.one_hot(tf.to_int32(tf.reshape(self.x, [-1])), self.num_emb, 1.0, 0.0) * tf.log(
-                    tf.clip_by_value(tf.reshape(self.g_predictions, [-1, self.num_emb]), 1e-20, 1.0)
-                ), 1) * tf.reshape(self.rewards, [-1])
+                tf.reshape(self.x, [-1, self.emb_dim]) * tf.reshape(self.g_predictions, [-1, self.emb_dim]), 1)
+            * tf.reshape(self.rewards, [-1])
         )
 
         g_opt = self.g_optimizer(self.learning_rate)
@@ -200,8 +210,10 @@ class LSTM(object):
         return unit
 
     def create_output_unit(self, params):
-        self.Wo = tf.Variable(self.init_matrix([self.hidden_dim, self.num_emb]))
-        self.bo = tf.Variable(self.init_matrix([self.num_emb]))
+        # self.Wo = tf.Variable(self.init_matrix([self.hidden_dim, self.num_emb]))
+        # self.bo = tf.Variable(self.init_matrix([self.num_emb]))
+        self.Wo = tf.Variable(self.init_matrix([self.hidden_dim, self.emb_dim]))
+        self.bo = tf.Variable(self.init_matrix([self.emb_dim]))
         params.extend([self.Wo, self.bo])
 
         def unit(hidden_memory_tuple):

@@ -61,22 +61,24 @@ class ROLLOUT(object):
             gen_x = gen_x.write(i, next_token)  # indices, batch_size
             return i + 1, x_tp1, h_t, given_num, gen_x
 
-        i, x_t, h_tm1, given_num, self.gen_x = control_flow_ops.while_loop(
-            cond=lambda i, _1, _2, given_num, _4: i < given_num,
-            body=_g_recurrence_1,
-            loop_vars=(tf.constant(0, dtype=tf.int32),
-                       tf.nn.embedding_lookup(self.g_embeddings, self.start_token), self.h0, self.given_num, gen_x))
+        with tf.name_scope('mc_search'):
+            i, x_t, h_tm1, given_num, self.gen_x = control_flow_ops.while_loop(
+                cond=lambda i, _1, _2, given_num, _4: i < given_num,
+                body=_g_recurrence_1,
+                loop_vars=(tf.constant(0, dtype=tf.int32),
+                           tf.nn.embedding_lookup(self.g_embeddings, self.start_token), self.h0, self.given_num, gen_x))
 
-        _, _, _, _, self.gen_x = control_flow_ops.while_loop(
-            cond=lambda i, _1, _2, _3, _4: i < self.sequence_length,
-            body=_g_recurrence_2,
-            loop_vars=(i, x_t, h_tm1, given_num, self.gen_x))
+            _, _, _, _, self.gen_x = control_flow_ops.while_loop(
+                cond=lambda i, _1, _2, _3, _4: i < self.sequence_length,
+                body=_g_recurrence_2,
+                loop_vars=(i, x_t, h_tm1, given_num, self.gen_x))
 
-        self.gen_x = self.gen_x.pack()  # seq_length x batch_size
-        self.gen_x = tf.transpose(self.gen_x, perm=[1, 0])  # batch_size x seq_length
+            self.gen_x = self.gen_x.pack()  # seq_length x batch_size
+            self.gen_x = tf.transpose(self.gen_x, perm=[1, 0])  # batch_size x seq_length
 
     def get_reward(self, sess, input_x, rollout_num, cnn):
         rewards = []
+
         for i in range(rollout_num):
             for given_num in range(1, 20):
                 feed = {self.x: input_x, self.given_num: given_num}
