@@ -9,22 +9,18 @@ from text_classifier import TextCNN
 from rollout import ROLLOUT
 from target_lstm import TARGET_LSTM
 import cPickle
+from config import BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH, START_TOKEN, SEED, positive_file
 
 #########################################################################################
 #  Generator  Hyper-parameters
 #########################################################################################
-EMB_DIM = 300
-HIDDEN_DIM = 300
-SEQ_LENGTH = 4
-START_TOKEN = 0
 
-PRE_EPOCH_NUM = 240  # 240
+PRE_EPOCH_NUM = 200  # 240
 TRAIN_ITER = 1  # generator
-SEED = 88
-BATCH_SIZE = 16
+
 ##########################################################################################
 
-TOTAL_BATCH = 100  # 800
+TOTAL_BATCH = 10  # 800
 
 #########################################################################################
 #  Discriminator  Hyper-parameters
@@ -38,7 +34,7 @@ dis_l2_reg_lambda = 0.2
 # Training parameters
 dis_batch_size = 64
 dis_num_epochs = 3
-dis_alter_epoch = 64  # 50
+dis_alter_epoch = 32  # 50
 
 feat_style = 0  # 0-text, 1-img, 2-txt+img, 3-txt+img+mm
 category = 'homicide'
@@ -53,8 +49,8 @@ elif feat_style == 3:
 
 negative_file = 'target_generate/generator_sample.npy'
 eval_file = 'target_generate/eval_file.npy'
-final_trans_file_seqgan = './trans_file_seqgan.npy'
-final_trans_file_mle = './trans_file_mle.npy'
+final_trans_file_seqgan = '../trans_file_seqgan.npy'
+final_trans_file_mle = '../trans_file_mle.npy'
 
 generated_num = 10000
 denominator_epsilon = 0.01
@@ -207,7 +203,7 @@ def main():
 
     # test purpose only
     generate_samples(sess, generator, BATCH_SIZE, 100, final_trans_file_mle)
-    print('Before GAN')
+
     # exit(0)
 
     print 'Start pre-training discriminator...'
@@ -239,7 +235,7 @@ def main():
         log.write(buffer + '\n')
 
     rollout = ROLLOUT(generator, 0.8)
-
+    print('Before GAN')
     print '#########################################################################'
     print 'Start Reinforcement Training Generator...'
     log.write('Reinforcement Training...\n')

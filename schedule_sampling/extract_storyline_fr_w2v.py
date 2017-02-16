@@ -8,7 +8,7 @@ import numpy as np
 
 # recover
 # xx = generator.generate(sess)
-storyline_trans = np.load('./ss_trans_file.npy')[:3]
+storyline_trans = np.load('./trans_file_ss.npy')[:3]
 
 # load w2v model
 w2v_vocab = Word2Vec.load('../dataset/w2v/mexico43_w2v.model')

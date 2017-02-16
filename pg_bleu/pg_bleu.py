@@ -27,7 +27,7 @@ TOTAL_BATCH = 800
 # positive_file = 'target_generate/real_data.txt'
 negative_file = 'target_generate/generator_sample.txt'
 eval_file = 'target_generate/eval_file.txt'
-final_trans_file = './final_trans_file_pg.npy'
+final_trans_file = '../trans_file_pg.npy'
 
 generated_num = 10000
 

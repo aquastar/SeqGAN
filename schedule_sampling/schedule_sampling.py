@@ -13,14 +13,14 @@ from config import BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH,START_TOKEN, SEED
 # SEQ_LENGTH = 20
 # START_TOKEN = 0
 
-EPOCH_NUM = 300
+EPOCH_NUM = 20
 # SEED = 88
 # BATCH_SIZE = 64
 
 # positive_file = 'target_generate/real_data.txt'
 negative_file = 'target_generate/generator_sample.txt'
 eval_file = 'target_generate/eval_file.txt'
-final_trans_file = './ss_trans_file.npy'
+final_trans_file = '../trans_file_ss.npy'
 generated_num = 10000
 
 
@@ -96,7 +96,7 @@ def main():
     random.seed(SEED)
     np.random.seed(SEED)
 
-    assert START_TOKEN == 0
+    # assert START_TOKEN == 0
 
     gen_data_loader = Gen_Data_loader(BATCH_SIZE)
     likelihood_data_loader = Likelihood_data_loader(BATCH_SIZE)
@@ -120,7 +120,7 @@ def main():
     #  pre-train generator
     print 'Start scheduled sampling training...'
     log.write('scheduled sampling training...\n')
-    curriculum_rate = 1.0
+    curriculum_rate = .8
     for epoch in xrange(EPOCH_NUM):
         curriculum_rate = max(0.0, curriculum_rate - 0.002)
         loss = pre_train_epoch(sess, generator, gen_data_loader, curriculum_rate)

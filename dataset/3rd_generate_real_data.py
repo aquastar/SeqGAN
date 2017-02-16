@@ -8,12 +8,17 @@ from nltk.stem.wordnet import WordNetLemmatizer
 
 storylines = pk.load(open('storyline.pk', 'rb'))
 protest_tag = ['baltimore', 'wall', 'martin']
-min_len = 4
+min_len = 3
 protest_data = []
 homicide_data = []
 en_stop_words = [x.encode('utf-8') for x in get_stop_words('en')]
 lmtzr = WordNetLemmatizer()
-img_feat_dic = pk.load(open('./img_feat_dic.pk', 'rb'))
+img_feat_dic = pk.load(open('./unifying_pic_avatar_dict.pk', 'rb'))
+tmp = {}
+for story, spic in img_feat_dic.iteritems():
+    for name, p in spic.iteritems():
+        tmp[name] = p
+img_feat_dic = tmp
 missed_cnt = 0
 
 feat_style = 0  # 0-text, 1-img, 2-txt+img, 3-txt+img+mm
@@ -59,7 +64,7 @@ def get_w2v_and_img_feat(w2v_vocab, word_list):
 
         if len(wd.split()) > 1:
             wd = filter(lambda x: x not in en_stop_words, wd.split())
-            wd = [lmtzr.lemmatize(x.decode('utf-8')).lower() for x in wd]
+            #wd = [lmtzr.lemmatize(x.decode('utf-8')).lower() for x in wd]
             missed = False
             for w in wd:
                 if w not in w2v_vocab:
@@ -69,9 +74,9 @@ def get_w2v_and_img_feat(w2v_vocab, word_list):
             #     continue
             vec = [w2v_vocab[_] for _ in wd if _ in w2v_vocab]
             mean_vec = map(mean, zip(*vec))
-            ret.append(np.concatenate((np.array(mean_vec), img_feat_dic[wd.lower()])))
+            ret.append(np.concatenate((np.array(mean_vec), img_feat_dic[' '.join(wd)])))
         elif wd.lower() in w2v_vocab:
-            ret.append(np.concatenate((w2v_vocab[wd.lower()], img_feat_dic[wd.lower()])))
+            ret.append(np.concatenate((w2v_vocab[wd.lower()], img_feat_dic[wd])))
         else:
             print 'Missed Single Entity:', wd
     return ret
@@ -85,9 +90,9 @@ def get_img_feat(w2v_vocab, word_list):
 
         if len(wd.split()) > 1:
             wd = filter(lambda x: x not in en_stop_words, wd.split())
-            wd = [lmtzr.lemmatize(x.decode('utf-8')).lower() for x in wd]
+            # wd = [lmtzr.lemmatize(x.decode('utf-8')).lower() for x in wd]
 
-            ret.append(img_feat_dic[wd.lower()])
+            ret.append(img_feat_dic[' '.join(wd)])
         elif wd.lower() in w2v_vocab:
             ret.append(img_feat_dic[wd.lower()])
         else:
