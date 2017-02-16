@@ -1,31 +1,29 @@
-911:Israel,Laden,Al-qaeda,United States|us|u.s.
-911:Saudi|Arabia,Laden,Al-qaeda,United States|us|u.s.
-911:Iraq,Osama bin Laden,Al-qaeda,United States|us|u.s.
-911:Laden,Al-qaeda,airliners|American Airlines|Flight|11|United Airlines|175,World Trade Center,New York,World trade center site|Memorial competition
-911:Laden,Al-qaeda,airliners|American Airlines|Flight|77,Pentagon,Arlington|Virginia,pentagon memorial
-911:Laden,Al-qaeda,airliners|United Airlines|Flight 93,Washington|D.C.|capitol|white house, Flight 93 Memorial
-911:Laden,Al-qaeda,airliners|United Airlines|Flight 93,Stonycreek Township,Flight 93 Memorial
-911:Laden,Mohammed,al-shibh,Atta
-911:Laden,Atef,hijacker
-911:Laden,Hazmi|Nawaf|al-hazmi,hani|hanjour
-911:Laden,Mihdhar,hani|hanjour
-911:911|9/11|September 11 attacks,Osama bin Laden|Laden,seal|team six|us|navy
-911:Laden|Al-qaeda,911|9/11|September 11 attacks,economic|world market|DJIA
-911:Laden|Al-qaeda,911|9/11|September 11 attacks,afghanistan|iraq|war
-vtshooting:Seung-hui|Seung-hui Cho,Emily|Hilscher,Ambler|Johnston|Hall
-vtshooting:Seung-hui|Seung-hui Cho,Ryan|Clark,Ambler|Johnston|Hall
-vtshooting:Seung-hui|Seung-hui Cho,Ambler|Johnston,NBC,Norris|Hall
+911:Israel,Osama|Laden,Al-qaeda,United States|us|u.s.
+911:Saudi,Osama|Laden,Al-qaeda,United States|us|u.s.
+911:Iraq,Osama|Laden,Al-qaeda,United States|us|u.s.
+911:Osama|Laden,Al-qaeda,airliners|American Airlines|Flight|11|United Airlines|175,world trade center,New York,world trade center site memorial
+911:Osama|Laden,Al-qaeda,airliners|American Airlines|Flight|77,Pentagon,Arlington|Virginia,pentagon memorial
+911:Osama|Laden,Al-qaeda,airliners|United Airlines|Flight|93,Washington|D.C.|capitol|white house,Flight 93 Memorial
+911:Osama|Laden,Al-qaeda,airliners|United Airlines|Flight|93,Stonycreek,Flight 93 Memorial
+911:Osama|Laden,Mohammed,al-shibh,Atta
+911:Osama|Laden,Atef,hijacker
+911:Osama|Laden,Hazmi|Nawaf|al-hazmi|Mihdhar,hani|hanjour
+911:Osama|Laden,Mihdhar,hani|hanjour
+911:911|9/11|September 11 attacks,Osama|Laden,seal|us|navy
+911:Osama|Laden|Al-qaeda,9/11|September 11|attacks,economy|stock
+911:Osama|Laden|Al-qaeda,9/11|September 11|attacks,afghanistan|iraq
+vtshooting:Seung-hui|Seung-hui Cho,Emily|Hilscher,Ambler|Johnston
+vtshooting:Seung-hui|Seung-hui Cho,Ryan|Clark,Ambler|Johnston
+vtshooting:Seung-hui|Seung-hui Cho,Ambler|Johnston,NBC,Norris
 vtshooting:Seung-hui|Seung-hui Cho,manifesto,NBC
 vtshooting:Seung-hui|Seung-hui Cho,video,NBC
-vtshooting:Seung-hui|Seung-hui Cho,Haiyan|Cheng,Hall|Norris
 vtshooting:Seung-hui|Seung-hui Cho,Jamie|Bishop,Hall|Norris
 vtshooting:Seung-hui|Seung-hui Cho,Loganathan,Hall|Norris
 vtshooting:Seung-hui|Seung-hui Cho,Jocelyne|Couture-Nowak,Norris|Hall
 vtshooting:Seung-hui|Seung-hui Cho,Liviu|Librescu,Norris Hall|Norris
-vtshooting:Seung-hui|Seung-hui Cho,Kevin Granata|Kevin,Norris|Hall
-vtshooting:Anxiety|disorder|mental|ill|therapy|autism,Seung-hui|Cho,shooting|attack|kill|killing
-vtshooting:Korea,Seung-hui|Seung-hui Cho,US|Centreville|Virginia
-vtshooting:Korean,Seung-hui|Seung-hui Cho,US|Centreville|Virginia
+vtshooting:Seung-hui|Seung-hui Cho,Granata|Kevin,Norris|Hall
+vtshooting:Anxiety|disorder|mental|ill|therapy|autism,Seung-hui|Seung-hui Cho,shooting|attack|kill|killing
+vtshooting:Korea|Korean,Seung-hui|Seung-hui Cho,US|Centreville|Virginia
 vtshooting:Seung-hui|Seung-hui Cho,Cho's family,victims
 vtshooting:Seung-hui|Seung-hui Cho,Sun-Kyung,victims
 vtshooting:shooting|gun,National Instant Criminal Background Check System|NICS,George|Bush

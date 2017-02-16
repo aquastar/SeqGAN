@@ -22,9 +22,6 @@ class LSTM(object):
 
         self.expected_reward = tf.Variable(tf.zeros([self.sequence_length]))
 
-        # added by czq
-        self.word_dim = 300
-
         with tf.variable_scope('generator'):
             # self.g_embeddings = tf.Variable(self.init_matrix([self.num_emb, self.emb_dim]))
             # self.g_params.append(self.g_embeddings)
@@ -74,7 +71,9 @@ class LSTM(object):
         self.gen_x = self.gen_x.pack()  # seq_length x batch_size
         self.gen_x = tf.transpose(self.gen_x, perm=[1, 0, 2])  # batch_size x seq_length
 
-        # supervised pretraining for generator
+        #######################################################################################################
+        #  supervised Pre-Training
+        #######################################################################################################
         g_predictions = tensor_array_ops.TensorArray(
             dtype=tf.float32, size=self.sequence_length,
             dynamic_size=False, infer_shape=True)
@@ -102,8 +101,14 @@ class LSTM(object):
             self.g_predictions.pack(), perm=[1, 0, 2])  # batch_size x seq_length x vocab_size
 
         # pretraining loss
+        # self.pretrain_loss = -tf.reduce_sum(
+        #     tf.one_hot(tf.to_int32(tf.reshape(self.x, [-1])), self.num_emb, 1.0, 0.0) * tf.log(
+        #         tf.clip_by_value(tf.reshape(self.g_predictions, [-1, self.num_emb]), 1e-20, 1.0)
+        #     )
+        # ) / (self.sequence_length * self.batch_size)
         self.pretrain_loss = -tf.reduce_sum(
-            tf.reshape(self.x, [-1, self.emb_dim]) * tf.reshape(self.g_predictions, [-1, self.emb_dim])
+            tf.reduce_sum(tf.reshape(self.x, [-1, self.emb_dim])
+                          * tf.reshape(self.g_predictions, [-1, self.emb_dim]), 1)
         ) / (self.sequence_length * self.batch_size)
 
         # training updates
@@ -123,8 +128,8 @@ class LSTM(object):
         #         ), 1) * tf.reshape(self.rewards, [-1])
         # )
         self.g_loss = -tf.reduce_sum(
-            tf.reduce_sum(
-                tf.reshape(self.x, [-1, self.emb_dim]) * tf.reshape(self.g_predictions, [-1, self.emb_dim]), 1)
+            tf.reduce_sum(tf.reshape(self.x, [-1, self.emb_dim])
+                          * tf.reshape(self.g_predictions, [-1, self.emb_dim]), 1)
             * tf.reshape(self.rewards, [-1])
         )
 

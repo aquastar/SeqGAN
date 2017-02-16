@@ -4,23 +4,23 @@ import tensorflow as tf
 import random
 from gen_dataloader import Gen_Data_loader, Likelihood_data_loader
 from target_lstm import TARGET_LSTM
-
+from config import BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH,START_TOKEN, SEED, positive_file
 #########################################################################################
 #  Generator  Hyper-parameters
 #########################################################################################
-EMB_DIM = 32
-HIDDEN_DIM = 32
-SEQ_LENGTH = 20
-START_TOKEN = 0
+# EMB_DIM = 32
+# HIDDEN_DIM = 32
+# SEQ_LENGTH = 20
+# START_TOKEN = 0
 
 EPOCH_NUM = 300
-SEED = 88
-BATCH_SIZE = 64
+# SEED = 88
+# BATCH_SIZE = 64
 
-positive_file = 'target_generate/real_data.txt'
+# positive_file = 'target_generate/real_data.txt'
 negative_file = 'target_generate/generator_sample.txt'
 eval_file = 'target_generate/eval_file.txt'
-
+final_trans_file = './ss_trans_file.npy'
 generated_num = 10000
 
 
@@ -39,13 +39,18 @@ def get_trainable_model(num_emb):
 def generate_samples(sess, trainable_model, batch_size, generated_num, output_file):
     #  Generated Samples
     generated_samples = []
+    # start = time.time()
     for _ in range(int(generated_num / batch_size)):
         generated_samples.extend(trainable_model.generate(sess))
+    # end = time.time()
+    # print 'Sample generation time:', (end - start)
+    np.save(output_file, generated_samples)
 
-    with open(output_file, 'w') as fout:
-        for poem in generated_samples:
-            buffer = ' '.join([str(x) for x in poem]) + '\n'
-            fout.write(buffer)
+    # with open(output_file, 'w') as fout:
+    #     for poem in generated_samples:
+    #         buffer = ' '.join([str(x) for x in poem]) + '\n'
+    #         # buffer = u''.join([words[x] for x in poem]).encode('utf-8') + '\n'
+    #         fout.write(buffer)
 
 
 def significance_test(sess, target_lstm, data_loader, output_file):
@@ -100,17 +105,18 @@ def main():
     best_score = 9.5
 
     generator = get_trainable_model(vocab_size)
-    target_lstm = TARGET_LSTM(vocab_size, 64, 32, 32, 20, 0)
+    # target_lstm = TARGET_LSTM(vocab_size, 64, 32, 32, 20, 0)
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     sess.run(tf.global_variables_initializer())
 
-    generate_samples(sess, target_lstm, 64, 10000, positive_file)
-    gen_data_loader.create_batches(positive_file)
+    # generate_samples(sess, target_lstm, 64, 10000, positive_file)
+    positive_data = np.load(positive_file).tolist()
+    gen_data_loader.create_batches(positive_data)
 
-    log = open('log/experiment-log.txt', 'w')
+    log = open('log/ss_experiment-log.txt', 'w')
     #  pre-train generator
     print 'Start scheduled sampling training...'
     log.write('scheduled sampling training...\n')
@@ -118,21 +124,25 @@ def main():
     for epoch in xrange(EPOCH_NUM):
         curriculum_rate = max(0.0, curriculum_rate - 0.002)
         loss = pre_train_epoch(sess, generator, gen_data_loader, curriculum_rate)
-        generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
-        likelihood_data_loader.create_batches(eval_file)
-        test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
-        print 'pre-train epoch ', epoch, 'curriculum rate:', curriculum_rate, 'test_loss ', test_loss
-        buffer = str(epoch) + ' ' + str(curriculum_rate) + ' ' + str(test_loss) + '\n'
+        # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
+        # likelihood_data_loader.create_batches(eval_file)
+        # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
+        # print 'pre-train epoch ', epoch, 'curriculum rate:', curriculum_rate, 'test_loss ', test_loss
+        # buffer = str(epoch) + ' ' + str(curriculum_rate) + ' ' + str(test_loss) + '\n'
+        buffer = str(epoch) + ' ' + str(curriculum_rate) + ' ' + str(loss) + '\n'
+        print(buffer)
         log.write(buffer)
 
-        if test_loss < best_score:
-            best_score = test_loss
-            print 'best score: ', test_loss
-            generate_samples(sess, generator, BATCH_SIZE, 100000, eval_file)
-            likelihood_data_loader.create_batches(eval_file)
-            significance_test(sess, target_lstm, likelihood_data_loader, 'significance/schedule_sampling.txt')
+        # if test_loss < best_score:
+        #     best_score = test_loss
+        #     print 'best score: ', test_loss
+        #     generate_samples(sess, generator, BATCH_SIZE, 100000, eval_file)
+        #     likelihood_data_loader.create_batches(eval_file)
+        #     significance_test(sess, target_lstm, likelihood_data_loader, 'significance/schedule_sampling.txt')
 
     log.close()
+
+    generate_samples(sess, generator, BATCH_SIZE, 100, final_trans_file)
 
 
 if __name__ == '__main__':

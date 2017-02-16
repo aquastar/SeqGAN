@@ -15,16 +15,16 @@ import cPickle
 #########################################################################################
 EMB_DIM = 300
 HIDDEN_DIM = 300
-SEQ_LENGTH = 3
+SEQ_LENGTH = 4
 START_TOKEN = 0
 
-PRE_EPOCH_NUM = 1  # 240
+PRE_EPOCH_NUM = 240  # 240
 TRAIN_ITER = 1  # generator
 SEED = 88
-BATCH_SIZE = 64
+BATCH_SIZE = 16
 ##########################################################################################
 
-TOTAL_BATCH = 1  # 800
+TOTAL_BATCH = 100  # 800
 
 #########################################################################################
 #  Discriminator  Hyper-parameters
@@ -38,13 +38,26 @@ dis_l2_reg_lambda = 0.2
 # Training parameters
 dis_batch_size = 64
 dis_num_epochs = 3
-dis_alter_epoch = 1  # 50
+dis_alter_epoch = 64  # 50
 
-positive_file = './homicide_in_num.npy'
+feat_style = 0  # 0-text, 1-img, 2-txt+img, 3-txt+img+mm
+category = 'homicide'
+if feat_style == 0:
+    positive_file = '../dataset/feat_pool/' + category + '_in_num_w2v.npy'
+elif feat_style == 1:
+    positive_file = '../dataset/feat_pool/' + category + '_in_num_img.npy'
+elif feat_style == 2:
+    positive_file = '../dataset/feat_pool/' + category + '_in_num_w2v_img.npy'
+elif feat_style == 3:
+    positive_file = '../dataset/feat_pool/' + category + '_in_num_w2v_img_mm.npy'
+
 negative_file = 'target_generate/generator_sample.npy'
-eval_file = 'target_generate/eval_file.txt'
+eval_file = 'target_generate/eval_file.npy'
+final_trans_file_seqgan = './trans_file_seqgan.npy'
+final_trans_file_mle = './trans_file_mle.npy'
 
 generated_num = 10000
+denominator_epsilon = 0.01
 
 
 ##############################################################################################
@@ -118,8 +131,6 @@ def main():
     random.seed(SEED)
     np.random.seed(SEED)
 
-    assert START_TOKEN == 0
-
     gen_data_loader = Gen_Data_loader(BATCH_SIZE)
     likelihood_data_loader = Likelihood_data_loader(BATCH_SIZE)
     vocab_size = 5000
@@ -163,35 +174,41 @@ def main():
     positive_data = np.load(positive_file).tolist()
     gen_data_loader.create_batches(positive_data)
 
-    log = open('log/experiment-log.txt', 'w')
+    log = open('log/seq_mle_experiment-log.txt', 'w')
     #  pre-train generator
     print '#########################################################################'
     print 'Start pre-training generator...'
     log.write('pre-training...\n')
 
     for epoch in xrange(PRE_EPOCH_NUM):
-        print 'pre-train epoch:', epoch
+        # print 'pre-train epoch:', epoch
         loss = pre_train_epoch(sess, generator, gen_data_loader)
         if epoch % 5 == 0:
-            print 'current loss:', loss
             # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
             # likelihood_data_loader.create_batches(eval_file)
             # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
             # print 'pre-train epoch ', epoch, 'test_loss ', test_loss
             # buffer = str(epoch) + ' ' + str(test_loss) + '\n'
-            buffer = str(epoch) + ' ' + str(loss) + '\n'
-            log.write(buffer)
+            buffer = 'pre-trained generator:' + str(epoch) + ' ' + str(loss)
+            print(buffer)
+            log.write(buffer + '\n')
 
     # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
     # likelihood_data_loader.create_batches(eval_file)
     # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
     # buffer = 'After pre-training:' + ' ' + str(test_loss) + '\n'
-    buffer = 'After pre-training:' + ' ' + str(loss) + '\n'
-    log.write(buffer)
+    buffer = 'After pre-training:' + ' ' + str(loss)
+    print(buffer)
+    log.write(buffer + '\n')
 
     # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
     # likelihood_data_loader.create_batches(eval_file)
     # significance_test(sess, target_lstm, likelihood_data_loader, 'significance/supervise.txt')
+
+    # test purpose only
+    generate_samples(sess, generator, BATCH_SIZE, 100, final_trans_file_mle)
+    print('Before GAN')
+    # exit(0)
 
     print 'Start pre-training discriminator...'
     for _ in range(dis_alter_epoch):
@@ -215,6 +232,12 @@ def main():
             except Exception as e:
                 # print str(e)
                 raise
+
+        loss = sess.run(cnn.loss, feed)
+        buffer = 'pre-train discriminator' + ' ' + str(loss)
+        print buffer
+        log.write(buffer + '\n')
+
     rollout = ROLLOUT(generator, 0.8)
 
     print '#########################################################################'
@@ -225,20 +248,23 @@ def main():
     # writer = tf.summary.FileWriter('./tb_logs', graph=tf.get_default_graph())
 
     for total_batch in range(TOTAL_BATCH):
-        with tf.name_scope('gen_train'):
-            for it in range(TRAIN_ITER):
-                samples = generator.generate(sess)
-                rewards = rollout.get_reward(sess, samples, 16, cnn)
-                feed = {generator.x: samples, generator.rewards: rewards}
-                _, g_loss = sess.run([generator.g_updates, generator.g_loss], feed_dict=feed)
-
-        if total_batch % 1 == 0 or total_batch == TOTAL_BATCH - 1:
-            generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
-            likelihood_data_loader.create_batches(eval_file)
-            # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
-            # buffer = str(total_batch) + ' ' + str(test_loss) + '\n'
-            # print 'total_batch: ', total_batch, 'test_loss: ', test_loss
-            # log.write(buffer)
+        print 'progress', total_batch, '/', TOTAL_BATCH
+        for it in range(TRAIN_ITER):
+            samples = generator.generate(sess)
+            rewards = rollout.get_reward(sess, samples, 16, cnn)
+            feed = {generator.x: samples, generator.rewards: rewards}
+            _, g_loss, pre_loss = sess.run([generator.g_updates, generator.g_loss, generator.pretrain_loss],
+                                           feed_dict=feed)
+            buffer = 'G-step:' + str(TRAIN_ITER) + ':' + str(g_loss) + '|' + str(pre_loss)
+            log.write(buffer + '\n')
+            print(buffer)
+            # if total_batch % 1 == 0 or total_batch == TOTAL_BATCH - 1:
+            #     generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
+            #     likelihood_data_loader.create_batches(eval_file)
+            #     # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
+            #     # buffer = str(total_batch) + ' ' + str(test_loss) + '\n'
+            #     # print 'total_batch: ', total_batch, 'test_loss: ', test_loss
+            #     log.write(buffer)
 
             # if test_loss < best_score:
             #     best_score = test_loss
@@ -248,7 +274,9 @@ def main():
         rollout.update_params()
 
         # generate for discriminator
-        print 'Start training discriminator'
+        print('Start training discriminator')
+        log.write('training discriminator...\n')
+
         for _ in range(5):
             generate_samples(sess, generator, BATCH_SIZE, generated_num, negative_file)
 
@@ -267,7 +295,19 @@ def main():
                 except ValueError:
                     pass
 
+            loss = sess.run(cnn.loss, feed)
+            buffer = 'discriminator' + ' ' + str(loss)
+            print buffer
+            log.write(buffer + '\n')
+
     log.close()
+
+    # save the model
+    # saver = tf.train.Saver({"gen": generator})
+    # saver.save(sess, 'my-model')
+
+    # generate samples
+    generate_samples(sess, generator, BATCH_SIZE, 100, final_trans_file_seqgan)
 
 
 if __name__ == '__main__':

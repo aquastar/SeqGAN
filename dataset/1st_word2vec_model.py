@@ -14,7 +14,7 @@ en_stop_words = [x.encode('utf-8') for x in get_stop_words('en')]
 lmtzr = WordNetLemmatizer()
 sent_list = []
 
-for root_dir in ['./homicide', './protest']:
+for root_dir in ['./test']:
 
     for dir in glob.glob(root_dir + os.sep + '*'):
         print dir
@@ -26,7 +26,7 @@ for root_dir in ['./homicide', './protest']:
 
             # stopwords
             sents = [filter(lambda x: x not in en_stop_words, x.split()) for x in
-                     re.split('\. ', open(file, 'r').readline().lower())]
+                     re.split('\. ', ' '.join([_.strip().lower() for _ in open(file, 'r').readlines()[:-1]]))]
             # stemming
             sents = [[lmtzr.lemmatize(x.decode('utf-8')) for x in y] for y in sents]
             for s in sents:

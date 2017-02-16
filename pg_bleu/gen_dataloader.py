@@ -10,13 +10,17 @@ class Gen_Data_loader():
 
     def create_batches(self, data_file):
         self.token_stream = []
-        with open(data_file, 'r') as f:
-            for line in f:
-                line = line.strip()
-                line = line.split()
-                parse_line = [int(x) for x in line]
-                if len(parse_line) == 20:
-                    self.token_stream.append(parse_line)
+
+        # load data file
+        # with open(data_file, 'r') as f:
+        #     for line in f:
+        #         line = line.strip()
+        #         line = line.split()
+        #         parse_line = [int(x) for x in line]
+        #         if len(parse_line) == 20:
+        #             self.token_stream.append(parse_line)
+
+        self.token_stream = data_file
 
         self.num_batch = int(len(self.token_stream) / self.batch_size)
         self.token_stream = self.token_stream[:self.num_batch * self.batch_size]

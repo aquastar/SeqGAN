@@ -5,27 +5,30 @@ import random
 from gen_dataloader import Gen_Data_loader, Likelihood_data_loader
 from rollout import ROLLOUT
 from target_lstm import TARGET_LSTM
+from config import BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH, START_TOKEN, SEED, positive_file
 
 #########################################################################################
 #  Generator  Hyper-parameters
 #########################################################################################
-EMB_DIM = 32
-HIDDEN_DIM = 32
-SEQ_LENGTH = 20
-START_TOKEN = 0
+# EMB_DIM = 32
+# HIDDEN_DIM = 32
+# SEQ_LENGTH = 20
+# START_TOKEN = 0
 
 PRE_EPOCH_NUM = 200
 TRAIN_ITER = 1  # generator
-SEED = 88
-BATCH_SIZE = 64
+# SEED = 88
+# BATCH_SIZE = 64
 
 ##########################################################################################
 
 TOTAL_BATCH = 800
 
-positive_file = 'target_generate/real_data.txt'
+# positive_file = 'target_generate/real_data.txt'
 negative_file = 'target_generate/generator_sample.txt'
 eval_file = 'target_generate/eval_file.txt'
+final_trans_file = './final_trans_file_pg.npy'
+
 generated_num = 10000
 
 
@@ -44,13 +47,18 @@ def get_trainable_model(num_emb):
 def generate_samples(sess, trainable_model, batch_size, generated_num, output_file):
     #  Generated Samples
     generated_samples = []
+    # start = time.time()
     for _ in range(int(generated_num / batch_size)):
         generated_samples.extend(trainable_model.generate(sess))
+    # end = time.time()
+    # print 'Sample generation time:', (end - start)
+    np.save(output_file, generated_samples)
 
-    with open(output_file, 'w') as fout:
-        for poem in generated_samples:
-            buffer = ' '.join([str(x) for x in poem]) + '\n'
-            fout.write(buffer)
+    # with open(output_file, 'w') as fout:
+    #     for poem in generated_samples:
+    #         buffer = ' '.join([str(x) for x in poem]) + '\n'
+    #         # buffer = u''.join([words[x] for x in poem]).encode('utf-8') + '\n'
+    #         fout.write(buffer)
 
 
 def target_loss(sess, target_lstm, data_loader):
@@ -92,14 +100,15 @@ def pre_train_epoch(sess, trainable_model, data_loader):
 
 
 def load_references(file):
-    ref = []
-    with open(file)as fin:
-        for line in fin:
-            line = line.strip()
-            line = line.split()
-            line = [int(x) for x in line]
-            if random.random() < 0.4:
-                ref.append(line)
+    ref = file
+    # ref = []
+    # with open(file)as fin:
+    #     for line in fin:
+    #         line = line.strip()
+    #         line = line.split()
+    #         line = [int(x) for x in line]
+    #         if random.random() < 0.4:
+    #             ref.append(line)
     return ref
 
 
@@ -115,19 +124,20 @@ def main():
 
     best_score = 9.1
     generator = get_trainable_model(vocab_size)
-    target_lstm = TARGET_LSTM(vocab_size, BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH, START_TOKEN)
+    # target_lstm = TARGET_LSTM(vocab_size, BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH, START_TOKEN)
 
     config = tf.ConfigProto()
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     sess.run(tf.global_variables_initializer())
 
-    generate_samples(sess, target_lstm, 64, 10000, positive_file)
+    # generate_samples(sess, target_lstm, 64, 10000, positive_file)
     ################################################################
-    gen_data_loader.create_batches(positive_file)
-    references = load_references(positive_file)
+    positive_data = np.load(positive_file).tolist()
+    gen_data_loader.create_batches(positive_data)
+    references = load_references(positive_data)
 
-    log = open('log/experiment-log.txt', 'w')
+    log = open('log/pg_experiment-log.txt', 'w')
     #  pre-train generator
     print 'Start pre-training...'
     log.write('pre-training...\n')
@@ -135,22 +145,27 @@ def main():
         print 'pre-train epoch:', epoch
         loss = pre_train_epoch(sess, generator, gen_data_loader)
         if epoch % 5 == 0:
-            generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
-            likelihood_data_loader.create_batches(eval_file)
-            test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
-            print 'pre-train epoch ', epoch, 'test_loss ', test_loss
-            buffer = str(epoch) + ' ' + str(test_loss) + '\n'
+            #     generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
+            #     likelihood_data_loader.create_batches(eval_file)
+            # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
+            # print 'pre-train epoch ', epoch, 'test_loss ', test_loss
+            # buffer = str(epoch) + ' ' + str(test_loss) + '\n'
+            # log.write(buffer)
+            print 'pre-train epoch ', epoch, 'loss ', loss
+            buffer = str(epoch) + ' ' + str(loss) + '\n'
             log.write(buffer)
 
-    generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
-    likelihood_data_loader.create_batches(eval_file)
-    test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
-    buffer = 'After pre-training:' + ' ' + str(test_loss) + '\n'
+    # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
+    # likelihood_data_loader.create_batches(eval_file)
+    # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
+    # buffer = 'After pre-training:' + ' ' + str(test_loss) + '\n'
+    print 'After pre-train epoch ', loss
+    buffer = str(loss) + '\n'
     log.write(buffer)
 
-    generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
-    likelihood_data_loader.create_batches(eval_file)
-    significance_test(sess, target_lstm, likelihood_data_loader, 'significance/supervise.txt')
+    # generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
+    # likelihood_data_loader.create_batches(eval_file)
+    # significance_test(sess, target_lstm, likelihood_data_loader, 'significance/supervise.txt')
 
     rollout = ROLLOUT(generator, references)
 
@@ -166,22 +181,24 @@ def main():
             feed = {generator.x: samples, generator.rewards: rewards}
             _, g_loss = sess.run([generator.g_updates, generator.g_loss], feed_dict=feed)
 
-        if total_batch % 1 == 0 or total_batch == TOTAL_BATCH - 1:
-            generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
-            likelihood_data_loader.create_batches(eval_file)
-            test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
-            buffer = str(total_batch) + ' ' + str(test_loss) + '\n'
-            print 'total_batch: ', total_batch, 'test_loss: ', test_loss
-            log.write(buffer)
+            # if total_batch % 1 == 0 or total_batch == TOTAL_BATCH - 1:
+            #     generate_samples(sess, generator, BATCH_SIZE, generated_num, eval_file)
+            #     likelihood_data_loader.create_batches(eval_file)
+            # test_loss = target_loss(sess, target_lstm, likelihood_data_loader)
+            # buffer = str(total_batch) + ' ' + str(test_loss) + '\n'
+            # print 'total_batch: ', total_batch, 'test_loss: ', test_loss
+            # log.write(buffer)
 
-            if test_loss < best_score:
-                best_score = test_loss
-                print 'best score: ', test_loss
-                significance_test(sess, target_lstm, likelihood_data_loader, 'significance/pg_bleu.txt')
-
+            # if test_loss < best_score:
+            #     best_score = test_loss
+            #     print 'best score: ', test_loss
+            #     significance_test(sess, target_lstm, likelihood_data_loader, 'significance/pg_bleu.txt')
+            print('Current loss:' + str(g_loss))
         rollout.update_params()
 
     log.close()
+
+    generate_samples(sess, generator, BATCH_SIZE, 100, final_trans_file)
 
 
 if __name__ == '__main__':
