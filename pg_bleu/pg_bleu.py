@@ -15,14 +15,14 @@ from config import BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH, START_TOKEN, SEE
 # SEQ_LENGTH = 20
 # START_TOKEN = 0
 
-PRE_EPOCH_NUM = 200
+PRE_EPOCH_NUM = 100
 TRAIN_ITER = 1  # generator
 # SEED = 88
 # BATCH_SIZE = 64
 
 ##########################################################################################
 
-TOTAL_BATCH = 800
+TOTAL_BATCH = 20
 
 # positive_file = 'target_generate/real_data.txt'
 negative_file = 'target_generate/generator_sample.txt'
@@ -193,7 +193,7 @@ def main():
             #     best_score = test_loss
             #     print 'best score: ', test_loss
             #     significance_test(sess, target_lstm, likelihood_data_loader, 'significance/pg_bleu.txt')
-            print('Current loss:' + str(g_loss))
+            print('Current loss:' + str(total_batch) + ':' + str(g_loss))
         rollout.update_params()
 
     log.close()

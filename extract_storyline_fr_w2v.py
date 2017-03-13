@@ -9,7 +9,7 @@ import numpy as np
 # recover
 # xx = generator.generate(sess)
 
-model = 'pg'
+model = 'ss'
 model_file = '../trans_file_%s.npy' % model
 
 storyline_trans = np.load(model_file)[:1]
@@ -19,7 +19,7 @@ w2v_vocab = Word2Vec.load('../dataset/w2v/mexico43_w2v.model')
 
 # test entries
 start_entries = ['abarca', 'pineda', 'maria', 'felipe', 'flores', 'iguala', 'cruz', 'enrique', 'nieto', 'gang',
-                 'student', 'police', 'karam', 'murillo', 'ayotzinapa', '43']
+                 'student', 'police', 'karam', 'murillo', 'ayotzinapa', '43', 'cartel']
 
 for s in start_entries:
     base = w2v_vocab[s]
@@ -32,7 +32,7 @@ for s in start_entries:
         print('\n===========')
 
 
-exit(0)
+# exit(0)
 
 # load w2v model
 w2v_vocab = Word2Vec.load('../dataset/w2v/mh370_w2v.model')

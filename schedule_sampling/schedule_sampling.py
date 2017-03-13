@@ -120,7 +120,7 @@ def main():
     #  pre-train generator
     print 'Start scheduled sampling training...'
     log.write('scheduled sampling training...\n')
-    curriculum_rate = .8
+    curriculum_rate = .9
     for epoch in xrange(EPOCH_NUM):
         curriculum_rate = max(0.0, curriculum_rate - 0.002)
         loss = pre_train_epoch(sess, generator, gen_data_loader, curriculum_rate)

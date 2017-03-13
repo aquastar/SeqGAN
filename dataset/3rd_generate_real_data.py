@@ -8,7 +8,7 @@ from nltk.stem.wordnet import WordNetLemmatizer
 
 storylines = pk.load(open('storyline.pk', 'rb'))
 protest_tag = ['baltimore', 'wall', 'martin']
-min_len = 3
+min_len = 4
 protest_data = []
 homicide_data = []
 en_stop_words = [x.encode('utf-8') for x in get_stop_words('en')]
@@ -21,7 +21,7 @@ for story, spic in img_feat_dic.iteritems():
 img_feat_dic = tmp
 missed_cnt = 0
 
-feat_style = 0  # 0-text, 1-img, 2-txt+img, 3-txt+img+mm
+feat_style = 1  # 0-text, 1-img, 2-txt+img, 3-txt+img+mm
 
 
 def mean(a):
@@ -153,6 +153,8 @@ if __name__ == '__main__':
                     for i in xrange(min_len):
                         diff = np.subtract(slice_vec[i], slice_vec[0])
                         one_transfer_vec.append(diff)
+
+                    # one_transfer_vec = slice_vec
 
                     if tag in protest_tag:
                         protest_data.append(one_transfer_vec)

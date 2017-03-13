@@ -47,7 +47,7 @@ if not os.path.isfile(sent_img_corpus_file):
 
                 new_img_addr = 'news_img' + os.sep + str(img_id_cnt) + '.jpg'
 
-                # download image
+                # download image in news articles
                 try:
                     print('Downloading images ' + str(img_id_cnt) + ' at:' + file_cont[-1])
                     from subprocess import call

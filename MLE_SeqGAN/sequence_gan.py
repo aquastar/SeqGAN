@@ -11,30 +11,31 @@ from target_lstm import TARGET_LSTM
 import cPickle
 from config import BATCH_SIZE, EMB_DIM, HIDDEN_DIM, SEQ_LENGTH, START_TOKEN, SEED, positive_file
 
+
 #########################################################################################
 #  Generator  Hyper-parameters
 #########################################################################################
 
-PRE_EPOCH_NUM = 200  # 240
+PRE_EPOCH_NUM = 100  # 240
 TRAIN_ITER = 1  # generator
 
 ##########################################################################################
 
-TOTAL_BATCH = 10  # 800
+TOTAL_BATCH = 100  # 800
 
 #########################################################################################
 #  Discriminator  Hyper-parameters
 #########################################################################################
 dis_embedding_dim = EMB_DIM
-dis_filter_sizes = [1, 2]  # , 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
-dis_num_filters = [100, 200]  # , 200, 200, 200, 100, 100, 100, 100, 100, 160, 160]
-dis_dropout_keep_prob = 0.75
+dis_filter_sizes = [1, 2,3,4]  # , 3, 4, 5, 6, 7, 8, 9, 10, 15, 20]
+dis_num_filters = [100, 200,200,200]  # , 200, 200, 200, 100, 100, 100, 100, 100, 160, 160]
+dis_dropout_keep_prob = 0.5
 dis_l2_reg_lambda = 0.2
 
 # Training parameters
 dis_batch_size = 64
 dis_num_epochs = 3
-dis_alter_epoch = 32  # 50
+dis_alter_epoch = 64  # 50
 
 feat_style = 0  # 0-text, 1-img, 2-txt+img, 3-txt+img+mm
 category = 'homicide'
